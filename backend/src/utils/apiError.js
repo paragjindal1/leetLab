@@ -1,8 +1,8 @@
  export class ApiError extends Error{
-    constructor(statusCode,message = "error occued",error){
-        super(message);
+    constructor(statusCode,errorMessage = "error occued",error){
+        super(errorMessage)
         this.statusCode = statusCode;
-        this.message = message;
+        this.errorMessage = errorMessage;
         this.error = error;
         this.success = false;
 

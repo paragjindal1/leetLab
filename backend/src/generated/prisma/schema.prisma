@@ -19,12 +19,107 @@ enum UserRole {
   USER
 }
 
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
 model User {
-  id        String   @default(uuid())
+  id        String   @id @default(uuid())
   name      String?
   email     String   @unique
   role      UserRole @default(USER)
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  problem       Problem[]
+  submissions   Submission[]
+  SovledProblem SolvedProblem[]
+}
+
+model Problem {
+  id          String     @id @default(uuid())
+  title       String
+  description String
+  difficulty  Difficulty
+  tags        String[]
+  userId      String
+  examples    Json
+  hints       String?
+  editorial   String?
+  constraints String?
+
+  testcases          Json // 
+  codeSnippets       Json
+  referenceSolutions Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  //  Relationship
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  submission    Submission[]
+  solvedProblem SolvedProblem[]
+}
+
+// one use can submit many times
+model Submission {
+  id            String   @id @default(uuid())
+  problemId     String
+  userId        String
+  sourceCode    Json
+  language      String
+  stdin         String?
+  stdout        String?
+  stderr        String?
+  compileOutput String?
+  status        String // Accepted , wrong answer
+  memory        String?
+  time          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  //  Relationship
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  testCases TestCase[]
+}
+
+// each test detail
+model TestCase {
+  id            String   @id @default(uuid())
+  submissionId  String
+  testCase      Int
+  passed        Boolean
+  stdout        String?
+  expected      String
+  stderr        String?
+  compileOutput String?
+  status        String
+  memory        String?
+  time          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  //  Relationship
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+}
+
+// one user can tick one probklem as solved as 1 time
+model SolvedProblem {
+  id        String @id @default(uuid())
+  problemId String
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([problemId, userId])
 }
