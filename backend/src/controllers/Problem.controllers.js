@@ -19,6 +19,7 @@ import {getJudge0LanguageId,submitBatchToJudge0,submitTokenToJudge0} from "../li
         hints,
         editorial,
         testcases,
+        constraints,
         codeSnippets,
         referenceSolutions} = req.body;
 
@@ -112,6 +113,7 @@ import {getJudge0LanguageId,submitBatchToJudge0,submitTokenToJudge0} from "../li
         tags,
         examples,
         hints,
+        constraints,
         editorial,
         testcases,
         codeSnippets,
@@ -190,6 +192,7 @@ const updateProblem = asyncHandler(async (req, res) => {
         hints,
         editorial,
         testcases,
+        constraints,
         codeSnippets,
         referenceSolutions} = req.body;
 
@@ -260,6 +263,7 @@ const updateProblem = asyncHandler(async (req, res) => {
         hints,
         editorial,
         testcases,
+        constraints,
         codeSnippets,
         referenceSolutions,
 
@@ -287,8 +291,35 @@ const deleteProblem = asyncHandler(async (req, res) => {
 });
 
 const getSolvedProblems = asyncHandler(async (req, res) => {
-    
+    const userId = req.user.id;
+
+    const getSolvedProblemsData = await db.solvedProblem.findMany({  // can also use user also here
+        where:{
+            userId
+        }
+    })
+
+    console.log(getSolvedProblemsData)
+
+    const getSolvedProblemsIds = getSolvedProblemsData.map(({problemId})=>{
+        return problemId;
+    })
+
+    const solvedProblems = await db.problem.findMany({
+        where:{
+            id:{
+                in:getSolvedProblemsIds
+            }
+            
+        }
+    })
+
+    res.status(200).json(new ApiResponse(200,
+        solvedProblems
+    ,"here is your problem"))
 });
+
+    
 
 
 export {

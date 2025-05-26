@@ -25,6 +25,17 @@ export const getJudge0LanguageId = (language) =>{
     }
 }
 
+export const getLanguageByLanguageId = (id) => {
+
+    const languages = {
+        63 : "JAVASCRIPT",
+        71: "PYTHON",
+        62:"JAVA"
+    }
+
+    return languages[id];
+}
+
 
 export const submitBatchToJudge0 = async(submissions) => {
     try {
