@@ -40,6 +40,7 @@ export const getLanguageByLanguageId = (id) => {
 export const submitBatchToJudge0 = async(submissions) => {
     try {
         console.log(`${process.env.JUDGE0_URL}/submissions/batch?base64_encoded=false`)
+        console.log("submission is",submissions)
         const token = await axios.post(`${process.env.JUDGE0_URL}/submissions/batch?base64_encoded=false`,{
             submissions
 

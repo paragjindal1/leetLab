@@ -46,7 +46,7 @@ export const login = asyncHandler(async (req, res) => {
         maxAge: 24 * 60 * 60 * 1000
     })
 
-    return res.status(200).json(new ApiResponse(200,user.email,"User logged in"))
+    return res.status(200).json(new ApiResponse(200,user,"User logged in"))
 
 
 
@@ -57,6 +57,8 @@ export const login = asyncHandler(async (req, res) => {
 export const register = asyncHandler(async (req, res) => {
 
     const {name,email, password} = req.body;
+
+
 
     if (!email || !password) {
         return res.status(400).json(new ApiError(400,"all feild is required"))
@@ -93,14 +95,14 @@ export const register = asyncHandler(async (req, res) => {
     console.log(user)
 
     if(user){
-        return res.status(201).json(new ApiResponse(201,user.email,"User created"))
+        return res.status(201).json(new ApiResponse(201,user,"User created"))
         
 
     }
 
     return res.status(400).json(new ApiError(400,"User not created"))
 
-    return res.status(201).json(new ApiResponse(201,user.email,"User created"))
+
 
 
 

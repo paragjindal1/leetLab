@@ -63,7 +63,7 @@ import {getJudge0LanguageId,submitBatchToJudge0,submitTokenToJudge0} from "../li
 
         let tokensWithOthers = await submitBatchToJudge0(submission);
 
-        console.log(tokensWithOthers)
+        console.log("heere is token",tokensWithOthers)
 
         if(!tokensWithOthers){
             return res.status(404).json(new ApiError(404,`${language} code token not produced`))
@@ -80,8 +80,8 @@ import {getJudge0LanguageId,submitBatchToJudge0,submitTokenToJudge0} from "../li
 
         console.log(results)
 
-        results.forEach((res)=>{
-            if(res.status.id !== 3){
+        results.forEach((result)=>{
+            if(result.status.id !== 3){
                 return res.status(400).json(new ApiError(400,`testcases is not valid`))
             }
 
@@ -129,7 +129,7 @@ import {getJudge0LanguageId,submitBatchToJudge0,submitTokenToJudge0} from "../li
 
     }
 
-    res.status(201).json(new ApiResponse(201,createProblem,"table is created"));
+    res.status(201).json(new ApiResponse(201,createProblem,"Problem is created"));
 
     //done
 
@@ -157,7 +157,16 @@ const getProblem = asyncHandler(async (req, res) => {
 
 const getProblems = asyncHandler(async (req, res) => {
 
-    const problems = await db.problem.findMany();
+    const problems = await db.problem.findMany({
+        include:{
+            solvedProblem:
+            {
+                where:{
+                    id: req.user.id
+                }
+            }
+        }
+    });
 
     if(!problems){
         return res.status(404).json(new ApiError(404,"Problem not found"))
