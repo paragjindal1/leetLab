@@ -7,6 +7,7 @@ import {ApiResponse} from "../utils/apiResponse.js";
 export const executeCode = asyncHandler(async (req, res) => {    // or submitCode
 
     const {problemId,sourceCode,languageId} = req.body;
+    console.log(problemId,sourceCode,languageId);
 
     const problem = await db.problem.findUnique({
         where:{
@@ -25,18 +26,19 @@ export const executeCode = asyncHandler(async (req, res) => {    // or submitCod
     const submission = problem.testcases.map(({input,output}) => {
         return {
             language_id:languageId,
-            source_code:sourceCode[language],
+            source_code:sourceCode,
             stdin:input,
             expected_output:output
 
         }
     })
 
-    console.log(submission);
+    console.log("sunmission array",submission);
 
     const tokenWithOthers = await submitBatchToJudge0(submission);
+    console.log("here is lang",language);
 
-    console.log(tokenWithOthers);
+    console.log("done",tokenWithOthers);
 
     const tokens = tokenWithOthers.data.map((r)=>r.token);
 
@@ -137,11 +139,22 @@ export const executeCode = asyncHandler(async (req, res) => {    // or submitCod
    })
     console.log(testcasestables)
 
+    console.log(submit);
+
+    const submissions = await db.submission.findUnique({
+        where:{
+            id:submit.id
+        },
+        include: {
+            testCases: true
+        }
+    })
+
     
 
 
 
-    res.status(200).json(new ApiResponse(200,submit,"submission done succesful"));
+    res.status(200).json(new ApiResponse(200,submissions,"submission done succesful"));
 
     
 
@@ -151,6 +164,8 @@ export const executeCode = asyncHandler(async (req, res) => {    // or submitCod
 
 export const runCode = asyncHandler(async (req, res) => {
     const {problemId,sourceCode,languageId} = req.body;
+
+    console.log(problemId,sourceCode,languageId)
 
     const problem = await db.problem.findUnique({
         where:{

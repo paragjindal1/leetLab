@@ -103,6 +103,8 @@ export const updatePlaylist = asyncHandler(async (req, res) => {
 export const addProblemsToPlaylist = asyncHandler(async (req, res) => {
     const { problemIds } = req.body;
     const { playlistId } = req.params;
+    console.log(req.body)
+    console.log("problemid", problemIds)
 
     if (!Array.isArray(problemIds)) {
         return res.status(400).json(new ApiError(400, "problemIds should be an array"));

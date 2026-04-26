@@ -4,11 +4,11 @@ import { Loader } from 'lucide-react';
 import ProblemsTable from '../components/ProblemTable';
 
 const Home = () => {
-  const {problems,isProblemsLoading,getAllProblem} = useProblemStore();
+  const {problems,isProblemsLoading,getAllProblem,deletedProblem} = useProblemStore();
     useEffect(()=>{
       getAllProblem()
     },
-    [])
+    [deletedProblem,problems.length])
     console.log(problems);
     console.log(isProblemsLoading);
   

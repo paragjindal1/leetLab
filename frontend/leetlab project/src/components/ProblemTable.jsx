@@ -1,14 +1,29 @@
 import React, { useEffect,use, useMemo,useState} from 'react';
 import { useAuthStore } from "../store/authStore";
-import { Bookmark, PencilIcon, Trash, TrashIcon, Plus, Search,Filter,Trash2,Edit} from "lucide-react";
+import { Bookmark, PencilIcon, Trash, TrashIcon, Plus, Search,Filter,Trash2,Edit,ChevronLeft,ChevronRight} from "lucide-react";
+import { useNavigate } from 'react-router-dom';
+import CreatePlaylistModal from './CreatePlaylistModel';
 
 import { useProblemStore } from '../store/useProblemStore';
+import { Navigate } from 'react-router-dom';
+
+import {usePlaylistStore} from "../store/usePlaylistStore"
+import AddToPlaylistModal from './AddToPlaylistModal';
 const ProblemTable = ({problems}) => {
+
+  const {createPlaylist} = usePlaylistStore();
+
+  const {deletedProblem,deleteProblemById} = useProblemStore();
+
+  const navigate = useNavigate();
     const { authUser } = useAuthStore();
-    const [difficulty,setDifficulty] = useState("All")
-    const [selectedTag,setSelectedTag] = useState("All")
+    const [difficulty,setDifficulty] = useState("All Difficulties")
+    const [selectedTag,setSelectedTag] = useState("All Tags")
     const [search,setSearch] = useState("")
     const [currentPage,setCurrentPage] = useState(1)
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isAddToPlaylistModalOpen, setIsAddToPlaylistModalOpen] = useState(false);
+    const [selectedProblemId, setselectedProblemId] = useState(null);
 
     const allTags = useMemo(()=>{
         if(!Array.isArray(problems)) return[]
@@ -30,8 +45,8 @@ const ProblemTable = ({problems}) => {
       console.log("asdada",problems)
       return (problems)
                 .filter((problem)=>search === "" || problem.title.toLowerCase().includes(search))
-                .filter((problem)=>selectedTag === "All" || problem.tags.includes(selectedTag))
-                .filter((problem)=>difficulty === "All" || problem.difficulty === difficulty)
+                .filter((problem)=>selectedTag === "All Tags" || problem.tags.includes(selectedTag))
+                .filter((problem)=>difficulty === "All Difficulties" || problem.difficulty === difficulty)
     },[problems,search,selectedTag,difficulty])
 
     console.log("filtered problem",filteredProblem)
@@ -39,10 +54,28 @@ const ProblemTable = ({problems}) => {
 
     const itemPerpage = 5;
 
+    const totalPages = useMemo(() => {
+        return Math.ceil(filteredProblem.length / itemPerpage);
+    })
+
     const paginatedProblems = useMemo(() => {
         return filteredProblem.slice((currentPage - 1) * itemPerpage, currentPage * itemPerpage);
     })
     const difficulties = ["EASY", "MEDIUM", "HARD"];
+
+
+    const handleDelete = async (id) => {
+       await deleteProblemById(id);
+    };
+
+    const handleAddToPlaylist = async (id) => {
+      setselectedProblemId(id);
+      setIsAddToPlaylistModalOpen(true);
+      
+    }
+    const handleCreatePlaylist = async (data) => {
+        await createPlaylist(data)
+    };
     return (
     <div className="container mx-auto p-4 mt-15">
             {/* Enhanced Header */}
@@ -82,7 +115,7 @@ const ProblemTable = ({problems}) => {
                 value={difficulty}
                 onChange={(e) => setDifficulty(e.target.value)}
               >
-                <option value="ALL">All Difficulties</option>
+                <option >All Difficulties</option>
                 {difficulties.map((diff) => (
                   <option key={diff} value={diff}>
                     {diff.charAt(0).toUpperCase() + diff.slice(1).toLowerCase()}
@@ -96,7 +129,7 @@ const ProblemTable = ({problems}) => {
               value={selectedTag}
               onChange={(e) => setSelectedTag(e.target.value)}
             >
-              <option value="ALL">All Tags</option>
+              <option >All Tags</option>
               {allTags.map((tag) => (
                 <option key={tag} value={tag}>
                   {tag}
@@ -155,10 +188,10 @@ const ProblemTable = ({problems}) => {
                       <td className="px-6 py-4">
                         <div className="flex items-center">
                           <div>
-                            <div className="text-sm font-semibold text-slate-900 hover:text-blue-600 cursor-pointer transition-colors">
+                            <div className="text-sm font-semibold text-slate-900 hover:text-blue-600 cursor-pointer transition-colors" onClick= {() => navigate(`/problem/${problem.id}`)}>
                               {problem.title}
                             </div>
-                            <div className="text-xs text-slate-500">Problem #{problem.id}</div>
+                            {/* <div className="text-xs text-slate-500">Problem #{problem.id}</div> */}
                           </div>
                         </div>
                       </td>
@@ -251,7 +284,67 @@ const ProblemTable = ({problems}) => {
           </table>
         </div>
       </div>
+
+// Pagination
+       <div className="flex flex-col sm:flex-row justify-between items-center mt-8 gap-4">
+        <div className="text-sm text-slate-600">
+          Showing page {currentPage} of {totalPages}
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((prev) => prev - 1)}
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Previous
+          </button>
+          
+          <div className="flex items-center gap-1">
+            {[...Array(Math.min(5, totalPages))].map((_, i) => {
+              const pageNum = i + 1;
+              return (
+                <button
+                  key={pageNum}
+                  className={`px-3 py-2 text-sm font-medium rounded-lg transition-all duration-150 ${
+                    currentPage === pageNum
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'text-slate-600 hover:bg-slate-100'
+                  }`}
+                  onClick={() => setCurrentPage(pageNum)}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+          </div>
+          
+          <button
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+          >
+            Next
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+      <div>
+      <CreatePlaylistModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSubmit={handleCreatePlaylist}
+      />
+      
+      <AddToPlaylistModal
+        isOpen={isAddToPlaylistModalOpen}
+        onClose={() => setIsAddToPlaylistModalOpen(false)}
+        problemId={selectedProblemId}
+      />
     </div>
+    </div>
+
+    
     );
 }
 

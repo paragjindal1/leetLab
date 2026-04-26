@@ -5,6 +5,7 @@ import bcrypt from "bcrypt"
 import {ApiResponse} from "../utils/apiResponse.js";
 import jwt from "jsonwebtoken"
 import cookieParser from "cookie-parser";
+import { initEccLib } from "bitcoinjs-lib";
 
 
 export const login = asyncHandler(async (req, res) => {
@@ -19,6 +20,11 @@ export const login = asyncHandler(async (req, res) => {
         where: {
             email: email,
         },
+        include:{
+            SovledProblem:true,
+            playlist:true,
+            submissions:true,
+       }
         
     });
 
@@ -46,7 +52,7 @@ export const login = asyncHandler(async (req, res) => {
         maxAge: 24 * 60 * 60 * 1000
     })
 
-    return res.status(200).json(new ApiResponse(200,user,"User logged in"))
+    return res.status(200).json(new ApiResponse(200,"User logged in"))
 
 
 
@@ -139,10 +145,16 @@ export const me = asyncHandler(async (req, res) => {
         },
         omit:{
             password:true
-        }
+        },
+       include:{
+            SovledProblem:true,
+            playlist:true,
+            submissions:true,
+       }
+
 
     })
-
+    console.log(user);
     if(!user){
         return res.status(404).josn(new ApiError(404,"user not found"))
     }

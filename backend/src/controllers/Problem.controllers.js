@@ -172,7 +172,7 @@ const getProblems = asyncHandler(async (req, res) => {
         return res.status(404).json(new ApiError(404,"Problem not found"))
 
     }
-
+    console.log(problems)
     res.status(200).json(new ApiResponse(200,problems,"problem founded"))
     
     
@@ -287,15 +287,15 @@ const updateProblem = asyncHandler(async (req, res) => {
 
 const deleteProblem = asyncHandler(async (req, res) => {
 
-    const problemId = req.params;
+    const {id} = req.params;
 
     const deletedProblem = await db.problem.delete({
         where:{
-            id:problemId,
+            id:id,
         }
     })
 
-    res.status(200).json(new ApiResponse(200,deleteProblem,"problrm is succesfully deleted"))
+    res.status(200).json(new ApiResponse(200,deletedProblem,"problrm is succesfully deleted"))
     
 });
 

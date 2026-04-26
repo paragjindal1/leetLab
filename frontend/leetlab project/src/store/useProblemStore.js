@@ -8,9 +8,11 @@ export const  useProblemStore = create((set)=>({
 
     problems: [],
     problemById:null,
+    deletedProblem:null,
     solvedProblesByUser:[],
     isProblemsLoading:false,
     isproblemByIdLoading:false,
+
 
 
     getAllProblem:async()=>{
@@ -31,9 +33,9 @@ export const  useProblemStore = create((set)=>({
         set({isproblemByIdLoading:true});
         try{
             const res = await axiosInstance.get(`/problem/get-problem/${id}`);
-            console.log(res);
+            console.log(res.data.data);
             set({problemById:res.data.data});
-            toast.success(res.data.data.message);
+            toast.success(res.data.message);
         }catch(error){
             console.log(error);
             toast.error(error?.response?.data?.message || "Failed to fetch problem");
@@ -53,6 +55,18 @@ export const  useProblemStore = create((set)=>({
             toast.error(error?.response?.data?.message || "Failed to fetch problems");
         }finally{
             set({isProblemsLoading:false});
+        }
+    },
+
+    deleteProblemById:async(id)=>{
+        try{
+            const res = await axiosInstance.delete(`/problem/delete-problem/${id}`);
+            console.log("deleted problem",res.data.data);
+            toast.success(res.data.message);
+            set({deletedProblem:res.data.data});
+        }catch(error){
+            console.log(error);
+            toast.error(error?.response?.data?.message || "Failed to delete problem");
         }
     }
 
