@@ -1,7 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { db } from "../libs/db.js";
 import {ApiError} from "../utils/apiError.js"
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 import {ApiResponse} from "../utils/apiResponse.js";
 import jwt from "jsonwebtoken"
 import cookieParser from "cookie-parser";
