@@ -5,7 +5,7 @@ import bcrypt from "bcrypt"
 import {ApiResponse} from "../utils/apiResponse.js";
 import jwt from "jsonwebtoken"
 import cookieParser from "cookie-parser";
-import { initEccLib } from "bitcoinjs-lib";
+// import { initEccLib } from "bitcoinjs-lib";
 
 
 export const login = asyncHandler(async (req, res) => {
